@@ -1,0 +1,42 @@
+'use strict'
+//to be use when using EFK stack for central logging
+var process = require('process')
+var env = process.env.NODE_ENV || 'development'
+var expressLogger = require('express-bunyan-logger')
+var bunyan = require('bunyan')
+
+// non local dev will log to stdout and openshift fluentd will pipe them to elasticsearch
+var accessLogStream = process.stdout
+var applicationLogStream = process.stdout
+
+// local dev will use a node module to pipe locals to a local elasticsearch
+if (env === 'development') {
+  var FluentLogger = require('fluent-logger-stream')
+  accessLogStream = new FluentLogger({ tag: 'fluentd.api-factory.access', type: 'forward', host: '192.168.33.100', port: 24224 }) // in_forward
+  applicationLogStream = new FluentLogger({ tag: 'fluentd.api-factory.app', type: 'forward', host: '192.168.33.100', port: 24224 }) // in_forward
+}
+
+const expressLoggerConfig = {
+  name: 'access-log',
+  stream: accessLogStream
+}
+
+// disable logging of the request body in production
+if (env === 'production') {
+  expressLoggerConfig.excludes = [
+    'body'
+  ]
+}
+
+module.exports = function (server) {
+
+  // express request logs
+  server.use(expressLogger(expressLoggerConfig))
+
+  // application logs
+  server.logger = bunyan.createLogger({
+    name: 'myaxa-apifactory',
+    serializers: bunyan.stdSerializers,
+    stream: applicationLogStream
+  })
+}
