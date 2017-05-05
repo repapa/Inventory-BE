@@ -1,0 +1,18 @@
+username
+password
+email
+contact
+firstName
+lastName
+age
+gender
+dateOfBirth
+birthPlace
+country
+
+{username: 'rpapa', password: 'P@ssw0rd', email: 'reyanpapa17@gmail.com', firstName: 'Rey-An', lastName: 'Papa', age: 24, gender: 'M', dateOfBirth: '1992-05-17', birthPlace: 'Las Pinas'. country: 'Philippines'}
+
+db.user.insert({ username: 'rpapa', password: 'P@ssw0rd', email: 'reyanpapa17@gmail.com', firstName: 'Rey-An', lastName: 'Papa', age: 24, gender: 'M', dateOfBirth: '1992-05-17', birthPlace: 'Las Piñas', country: 'Philippines'});
+
+
+db.user.update({'username':'rpapa'},{$set:{'birthPlace':'Las Piñas'}});
